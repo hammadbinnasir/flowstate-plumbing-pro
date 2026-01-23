@@ -1,0 +1,8 @@
+
+{
+  "name": "FlowState Plumbing Pro",
+  "description": "A high-converting, professional plumbing service website featuring an AI-powered diagnostic tool for instant estimates and troubleshooting.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
