@@ -1,36 +1,52 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = "AIzaSyA495f_bR7eTn1bMaOL1pGZZ7y2npiQ0No";
+const apiKey = "AIzaSyAeACslKQxfoLSDxDB3rlbK36JSNFuZyjo";
 const ai = new GoogleGenAI({ apiKey });
 
 async function findWorkingModel() {
-    const models = [
-        "gemini-2.0-flash-exp",
-        "gemini-1.5-flash",
-        "models/gemini-1.5-flash",
-        "gemini-1.5-flash-001",
-        "gemini-pro"
-    ];
+    try {
+        console.log("Listing models...");
+        const modelsResult = await ai.models.list();
 
-    console.log("Searching for a working model...");
+        let models = [];
+        if (modelsResult && Array.isArray(modelsResult.pageInternal)) {
+            models = modelsResult.pageInternal;
+        } else if (modelsResult && Array.isArray(modelsResult.models)) {
+            models = modelsResult.models;
+        } else if (Array.isArray(modelsResult)) {
+            models = modelsResult;
+        }
 
-    for (const model of models) {
-        console.log(`\nTesting ${model}...`);
-        try {
-            const response = await ai.models.generateContent({
-                model: model,
-                contents: { parts: [{ text: "Hello" }] }
-            });
-            console.log(`✅ SUCCESS: ${model} works!`);
-            // return; // Don't stop, list all working ones
-        } catch (e) {
-            // If it's 429, it means the model EXISTS and is valid, just rate limited.
-            if (e.status === 429 || (e.message && e.message.includes('429'))) {
-                console.log(`⚠️ VALID BUT LIMITED: ${model} (429 Resource Exhausted)`);
-            } else {
-                console.log(`❌ FAILED: ${model} - Status: ${e.status} Message: ${e.message}`);
+        if (models.length === 0) {
+            console.error("No models found. Structure:", JSON.stringify(modelsResult).substring(0, 500));
+            return;
+        }
+
+        console.log(`Found ${models.length} models.`);
+
+        for (const model of models) {
+            const modelName = model.name;
+            const hasGenerate = model.supportedActions && model.supportedActions.includes('generateContent');
+
+            if (!hasGenerate) {
+                console.log(`Skipping ${modelName} (no generateContent support)`);
+                continue;
+            }
+
+            try {
+                console.log(`\nTesting ${modelName}...`);
+                const response = await ai.models.generateContent({
+                    model: modelName,
+                    contents: { parts: [{ text: "Hello" }] }
+                });
+                console.log(`✅ SUCCESS WITH ${modelName}!`);
+                return;
+            } catch (error) {
+                console.log(`❌ FAILED ${modelName}: ${error.status} - ${error.message.substring(0, 100)}...`);
             }
         }
+    } catch (error) {
+        console.error("Critical failure during test:", error);
     }
 }
 

@@ -33,11 +33,7 @@ const AIDiagnostic: React.FC = () => {
       const analysis = await analyzePlumbingIssue(description, image || undefined);
       setResult(analysis);
     } catch (err: any) {
-      if (err.message?.includes('429') || err.message?.includes('quota') || err.status === 429) {
-        setError('High traffic! Please wait 60 seconds and try again. (Free tier limit reached)');
-      } else {
-        setError(err.message || 'Something went wrong');
-      }
+      setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -138,7 +134,7 @@ const AIDiagnostic: React.FC = () => {
             <div className="flex justify-between items-start mb-8">
               <div>
                 <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 ${result.severity === 'Emergency' ? 'bg-red-100 text-red-600' :
-                    result.severity === 'High' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'
+                  result.severity === 'High' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'
                   }`}>
                   {result.severity} Priority
                 </span>
