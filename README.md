@@ -52,9 +52,6 @@ This project is perfect for:
 
 ## ⚙️ Quick Start
 
-### 1. Prerequisites
-- [Node.js](https://nodejs.org/) (Latest LTS)
-- A Google AI Studio [API Key](https://aistudio.google.com/app/apikey)
 
 ### 2. Installation
 ```bash
